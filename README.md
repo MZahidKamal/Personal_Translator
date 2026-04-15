@@ -6,7 +6,7 @@
 
 A high-performance, AI-powered translation application that bridges the gap between **Banglish** (Bengali written in Roman script) and major languages like **English**, **German**, and proper **Bengali script**. Built for recruiters, travelers, and linguists who need quick, formal, and accurate translations.
 
-🔗 **Live Demo:** [https://personaltranslator-deb.streamlit.app/](http://www.personaltranslator.streamline.com)
+🔗 **Live Demo:** [personaltranslator-deb.streamlit.app](https://personaltranslator-deb.streamlit.app/)
 
 ---
 
