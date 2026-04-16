@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 # 1. Configuration and API Setup
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
+gemini_model = os.getenv("GEMINI_MODEL")
 
 
 # Initialize Gemini Client
@@ -89,7 +90,7 @@ if translate_button:
 
                 # Call Gemini API
                 response = client.models.generate_content(
-                    model="gemini-3-flash-preview",
+                    model=gemini_model,
                     contents=final_prompt
                 )
 
