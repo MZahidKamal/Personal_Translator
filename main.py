@@ -46,7 +46,7 @@ st.write("Welcome! Convert your Banglish sentences into German, English, or prop
 user_input = st.text_area(
     "Enter Banglish Text:",
     max_chars=1000,
-    placeholder="e.g., as salamu alaikum...",
+    placeholder="e.g., as-salamu-alaikum...",
     key="banglish_input"
 )
 
