@@ -21,9 +21,21 @@ st.set_page_config(page_title="Personal Translator", page_icon="🌐")
 
 
 # 2. Define Translation Prompts (Backend Updates)
-prompt_for_german = "Translate the following Banglish text into formal German, no introduction, no conclusion, no extra context, no extra feature, no change of tone, no change of style, no change of sentence structure, no change of emotion, only simply translate in German using formal tone and style: "
-prompt_for_english = "Translate the following Banglish text into fluent English, no introduction, no conclusion, no extra context, no extra feature, no change of tone, no change of style, no change of sentence structure, no change of emotion, only simply translate in English using formal tone and style: "
-prompt_for_Bangla = "Convert the following Banglish text into proper Bengali (Bangla) script, no introduction, no conclusion, no extra context, no extra feature, no change of tone, no change of style, no change of sentence structure, no change of emotion, only simply convert in Bangla script using bangla font using same tone and style: "
+prompt_for_german = ("Translate the following Banglish text into formal German."
+                     "No introduction, no conclusion, no extra context, no extra feature, no change of tone, no change of style, no change of sentence structure, no change of emotion."
+                     "If the input is formal then translate in German using formal tone."
+                     "If the input is informal then translate in German using informal tone."
+                     "Only use A1 or maximum A2 level German translation and style: ")
+
+prompt_for_english = ("Translate the following Banglish text into fluent English."
+                      "No introduction, no conclusion, no extra context, no extra feature, no change of tone, no change of style, no change of sentence structure, no change of emotion."
+                      "If the input is formal then translate in English using formal tone."
+                      "If the input is informal then translate in English using informal tone."
+                      "Only simply translate in English using natural style: ")
+
+prompt_for_Bangla = ("Convert the following Banglish text into proper Bengali (Bangla) script."
+                     "No introduction, no conclusion, no extra context, no extra feature, no change of tone, no change of style, no change of sentence structure, no change of emotion."
+                     "Only simply convert in Bangla script using bangla font using same tone and style: ")
 
 PROMPTS = {
     "German": prompt_for_german,
