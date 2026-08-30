@@ -6,8 +6,11 @@ from dotenv import load_dotenv
 
 # 1. Configuration and API Setup
 load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY")
-gemini_model = os.getenv("GEMINI_MODEL")
+# api_key = os.getenv("GEMINI_API_KEY")
+# llm_model = os.getenv("GEMINI_MODEL")
+
+api_key = os.getenv("GROQ_CLOUD_API_KEY")
+llm_model = os.getenv("GROQ_CLOUD_OPENAI_MODEL")
 
 
 # Initialize Gemini Client
@@ -58,7 +61,7 @@ st.write("Welcome! Convert your Banglish sentences into German, English, or prop
 user_input = st.text_area(
     "Enter Banglish Text:",
     max_chars=1000,
-    placeholder="e.g., as-salamu-alaikum...",
+    placeholder="e.g., as salamu alaikum...",
     key="banglish_input"
 )
 
@@ -102,7 +105,7 @@ if translate_button:
 
                 # Call Gemini API
                 response = client.models.generate_content(
-                    model=gemini_model,
+                    model=llm_model,
                     contents=final_prompt
                 )
 
