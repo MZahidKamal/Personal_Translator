@@ -1,19 +1,19 @@
 import streamlit as st
-from groq import Groq
+from google import genai
 import os
 from dotenv import load_dotenv
 
 
 # 1. Configuration and API Setup
 load_dotenv()
-api_key = os.getenv("GROQ_CLOUD_API_KEY")
-llm_model = os.getenv("GROQ_CLOUD_OPENAI_MODEL")
+api_key = os.getenv("GEMINI_API_KEY")
+llm_model = os.getenv("GEMINI_MODEL")
 
 
-# Initialize Groq Cloud Client
+# Initialize Gemini Client
 client = None
 if api_key:
-    client = Groq(api_key=api_key)
+    client = genai.Client(api_key=api_key)
 
 
 # Set Page Configuration
@@ -99,16 +99,15 @@ if translate_button:
             with st.spinner(f"Translating to {selected_language}..."):
                 # Construct prompt from backend dictionary
                 final_prompt = f"{PROMPTS[selected_language]}\n\nText: {user_input}"
+                print(1234)
 
                 # Call Gemini API
-                response = client.chat.completions.create(
+                response = client.models.generate_content(
                     model=llm_model,
-                    messages=[
-                        {"role": "user", "content": final_prompt}
-                    ]
+                    contents=final_prompt
                 )
 
-                translated_text = response.choices[0].message.content
+                translated_text = response.text
 
                 # Display Results
                 st.markdown("---")
