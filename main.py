@@ -1,19 +1,19 @@
 import streamlit as st
-from groq import Groq
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnableParallel
+from langchain_groq import ChatGroq
 import os
 from dotenv import load_dotenv
 
 
 # 1. Configuration and API Setup
 load_dotenv()
-api_key = os.getenv("GROQ_CLOUD_API_KEY")
-llm_model = os.getenv("GROQ_CLOUD_OPENAI_MODEL")
+groq_api_key = os.getenv("GROQ_CLOUD_API_KEY")
+groq_model_name = os.getenv("GROQ_CLOUD_OPENAI_MODEL")
 
-
-# Initialize Groq Cloud Client
-client = None
-if api_key:
-    client = Groq(api_key=api_key)
+model = ChatGroq(model=groq_model_name, groq_api_key=groq_api_key, temperature=0.0)
+parser = StrOutputParser()
 
 
 # Set Page Configuration
@@ -21,27 +21,34 @@ st.set_page_config(page_title="Personal Translator", page_icon="🌐")
 
 
 # 2. Define Translation Prompts (Backend Updates)
-prompt_for_german = ("Translate the following Banglish text into formal German."
+prompt_instruction_for_german = ("Translate the following Banglish text into formal German."
                      "No introduction, no conclusion, no extra context, no extra feature, no change of tone, no change of style, no change of sentence structure, no change of emotion."
                      "If the input is formal then translate in German using formal tone."
                      "If the input is informal then translate in German using informal tone."
                      "Only use A1 or maximum A2 level German translation and style: ")
 
-prompt_for_english = ("Translate the following Banglish text into fluent English."
+prompt_instruction_for_english = ("Translate the following Banglish text into fluent English."
                       "No introduction, no conclusion, no extra context, no extra feature, no change of tone, no change of style, no change of sentence structure, no change of emotion."
                       "If the input is formal then translate in English using formal tone."
                       "If the input is informal then translate in English using informal tone."
                       "Only simply translate in English using natural style: ")
 
-prompt_for_Bangla = ("Convert the following Banglish text into proper Bengali (Bangla) script."
+prompt_instruction_for_bangla = ("Convert the following Banglish text into proper Bengali (Bangla) script."
                      "No introduction, no conclusion, no extra context, no extra feature, no change of tone, no change of style, no change of sentence structure, no change of emotion."
                      "Only simply convert in Bangla script using bangla font using same tone and style: ")
 
-PROMPTS = {
-    "German": prompt_for_german,
-    "English": prompt_for_english,
-    "Bangla": prompt_for_Bangla
-}
+
+german_prompt = PromptTemplate.from_template(f"{prompt_instruction_for_german}"+"\n{text}")
+english_prompt = PromptTemplate.from_template(f"{prompt_instruction_for_english}"+"\n{text}")
+bangla_prompt = PromptTemplate.from_template(f"{prompt_instruction_for_bangla}"+"\n{text}")
+
+
+# Now we'll run all three translation branches AT THE SAME TIME, using RunnableParallel.
+parallel_translation_chain = RunnableParallel(
+    german=german_prompt | model | parser,
+    english=english_prompt | model | parser,
+    bangla=bangla_prompt | model | parser,   # FIX: key renamed to 'bangla' to match how it's read below
+)
 
 
 # Define a callback function to clear the input
@@ -62,60 +69,34 @@ user_input = st.text_area(
     key="banglish_input"
 )
 
-
-# Language selection with Radio buttons
-selected_language = st.radio(
-    "Select Target Language:",
-    options=["German", "English", "Bangla"],
-    index=None
-)
-
-
-# Layout for Buttons
-col1, col2 = st.columns([1, 5])
+col1, col2 = st.columns(2)
 with col1:
-    translate_button = st.button("Translate")
+    submit_clicked = st.button("Submit")
 with col2:
-    # Use callback to clear the text area safely
-    st.button("Clear Input", on_click=clear_text)
+    st.button("Clear", on_click=clear_text)
 
 
-# 4. Logic and Conditional Rendering
-if translate_button:
-    # Edge Case: Check if text input is empty
-    if not user_input.strip():
+if submit_clicked:
+    if not user_input or not user_input.strip():
         st.warning("Please enter some text in Banglish first!")
-
-    # Edge Case: Check if language is selected
-    elif selected_language is None:
-        st.warning("Please select a target language!")
-
-    # Edge Case: API Key validation
-    elif not client:
-        st.error("API Key missing! Please check your .env file.")
-
     else:
         try:
-            with st.spinner(f"Translating to {selected_language}..."):
-                # Construct prompt from backend dictionary
-                final_prompt = f"{PROMPTS[selected_language]}\n\nText: {user_input}"
+            with st.spinner("Translating for you..."):
 
-                # Call Gemini API
-                response = client.chat.completions.create(
-                    model=llm_model,
-                    messages=[
-                        {"role": "user", "content": final_prompt}
-                    ]
-                )
+                # FIX: use the REAL user_input instead of a hardcoded string.
+                result = parallel_translation_chain.invoke({"text": user_input})
 
-                translated_text = response.choices[0].message.content
+                translated_german_text = result["german"]
+                translated_english_text = result["english"]
+                translated_bangla_text = result["bangla"]
 
                 # Display Results
                 st.markdown("---")
                 st.subheader("Translated Output:")
 
-                # Displaying the result inside a code block with bash syntax
-                st.code(f"{translated_text}", language="bash")
+                st.code(f"{translated_german_text}", language="bash")
+                st.code(f"{translated_english_text}", language="bash")
+                st.code(f"{translated_bangla_text}", language="bash")
 
                 st.markdown("---")
 
